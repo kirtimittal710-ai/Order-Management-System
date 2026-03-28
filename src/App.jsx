@@ -21,6 +21,8 @@ export default function App() {
   const [page, setPage] = useState('dashboard');
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [editingOrder, setEditingOrder] = useState(null);
+
   const [orders, setOrders] = useState(() => {
   const saved = localStorage.getItem('orders');
   return saved ? JSON.parse(saved) : initialOrders;
@@ -50,17 +52,34 @@ export default function App() {
   localStorage.setItem('orders', JSON.stringify(updated));
   navigate('orders');
 };
+const editOrder = (id) => {
+  setEditingOrder(orders.find(o => o.id === id));
+  setPage('create');
+};
 
-  const renderPage = () => {
+const onEditOrder = (updatedOrder) => {
+  const updated = orders.map(o => o.id === updatedOrder.id ? updatedOrder : o);
+  setOrders(updated);
+  localStorage.setItem('orders', JSON.stringify(updated));
+  setEditingOrder(null);
+  navigate('orders');
+};
+
+ const renderPage = () => {
     switch (page) {
       case 'dashboard':
         return <Dashboard onNavigate={navigate} onSelectOrder={selectOrder} orders={orders} />;
       case 'orders':
-        return <OrderList orders={orders} onSelectOrder={selectOrder} onNavigate={navigate} />;
+        return <OrderList orders={orders} onSelectOrder={selectOrder} onNavigate={navigate} onEditOrder={editOrder} />;
       case 'detail':
         return <OrderDetail orderId={selectedOrderId} onBack={goBack} orders={orders} />;
       case 'create':
-        return <CreateOrder onBack={() => navigate('orders')} onAddOrder={addOrder} />;
+        return <CreateOrder 
+          onBack={() => { navigate('orders'); setEditingOrder(null); }} 
+          onAddOrder={addOrder}
+          editingOrder={editingOrder}
+          onEditOrder={onEditOrder}
+        />;
       case 'notifications':
         return <Notifications onSelectOrder={selectOrder} />;
       default:

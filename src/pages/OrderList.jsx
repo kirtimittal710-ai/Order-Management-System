@@ -26,7 +26,7 @@ const EmptyState = () => (
   </div>
 );
 
-export default function OrderList({ orders, onSelectOrder, onNavigate }) {
+export default function OrderList({ orders, onSelectOrder, onNavigate, onEditOrder }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
@@ -134,7 +134,7 @@ export default function OrderList({ orders, onSelectOrder, onNavigate }) {
             <table className="w-full">
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
-                  {['Order ID', 'Customer', 'Product', 'Amount', 'Status', 'Priority', 'Date', ''].map(h => (
+                  {['Order ID', 'Customer', 'Product', 'Amount', 'Status', 'Priority', 'Date', 'Edit'].map(h => (
                     <th key={h} className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider"
                       style={{ color: 'var(--text-muted)', fontFamily: 'DM Sans' }}>{h}</th>
                   ))}
@@ -179,15 +179,17 @@ export default function OrderList({ orders, onSelectOrder, onNavigate }) {
                       <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{order.date}</p>
                     </td>
                     <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                        style={{ opacity: hoveredRow === order.id ? 1 : 0 }}>
+                      <div className="flex items-center gap-1">
                         <button onClick={() => onSelectOrder(order.id)}
                           className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
-                          style={{ color: 'var(--text-secondary)' }}>
+                          style={{ color: 'var(--text-secondary)' }}
+                          title="View">
                           <Eye size={14} />
                         </button>
-                        <button className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
-                          style={{ color: 'var(--text-secondary)' }}>
+                        <button onClick={() => onEditOrder(order.id)}
+                          className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                          style={{ color: 'var(--accent-violet)' }}
+                          title="Edit">
                           <Edit2 size={14} />
                         </button>
                       </div>

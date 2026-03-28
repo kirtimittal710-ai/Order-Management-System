@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, ArrowRight, Check, AlertCircle, User, Package, FileText } from 'lucide-react';
 import { teamMembers } from '../data/mockData';
 
@@ -21,20 +21,39 @@ const FormField = ({ label, error, children }) => (
   </div>
 );
 
-export default function CreateOrder({ onBack, onAddOrder }) {
+export default function CreateOrder({ onBack, onAddOrder, editingOrder, onEditOrder }) {
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
+  const isEditMode = !!editingOrder;
+
   const [form, setForm] = useState({
     customerName: '', email: '', phone: '',
-    product: '', amount: '', priority: 'medium', status: 'pending',
+    product: '', amount: '', priority: 'medium',
     assignedTo: '', dueDate: '', notes: ''
   });
   const [errors, setErrors] = useState({});
 
-const set = (k, v) => {
-  setForm(f => ({ ...f, [k]: v }));
-  setErrors(e => ({ ...e, [k]: undefined }));
-};
+  useEffect(() => {
+    if (editingOrder) {
+      setForm({
+        customerName: editingOrder.customer.name,
+        email: editingOrder.customer.email,
+        phone: editingOrder.customer.phone,
+        product: editingOrder.product,
+        amount: editingOrder.amount,
+        priority: editingOrder.priority,
+        assignedTo: editingOrder.assignedTo,
+        dueDate: editingOrder.dueDate,
+        notes: editingOrder.notes || ''
+      });
+    }
+  }, [editingOrder]);
+
+  const set = (k, v) => {
+    setForm(f => ({ ...f, [k]: v }));
+    setErrors(e => ({ ...e, [k]: undefined }));
+  };
+
   const validateStep1 = () => {
     const e = {};
     if (!form.customerName.trim()) e.customerName = 'Customer name is required';
@@ -63,33 +82,54 @@ const set = (k, v) => {
   };
 
   const handleSubmit = () => {
-    const newOrder = {
-      id: `ORD-2024-00${Date.now().toString().slice(-3)}`,
-      customer: {
-        name: form.customerName,
-        email: form.email,
-        phone: form.phone,
-        avatar: form.customerName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-      },
-      product: form.product,
-      amount: Number(form.amount),
-      status: 'pending',
-      priority: form.priority,
-      date: new Date().toISOString().split('T')[0],
-      dueDate: form.dueDate,
-      assignedTo: form.assignedTo,
-      notes: form.notes,
-      items: [{ name: form.product, qty: 1, price: Number(form.amount) }],
-      timeline: [
-        { status: 'Order Placed', time: new Date().toLocaleString('en-IN'), done: true },
-        { status: 'Payment Verified', time: '', done: false },
-        { status: 'Processing', time: '', done: false },
-        { status: 'Shipped', time: '', done: false },
-        { status: 'Delivered', time: '', done: false },
-      ]
-    };
-    onAddOrder(newOrder);
-    setSubmitted(true);
+    if (isEditMode) {
+      const updatedOrder = {
+        ...editingOrder,
+        customer: {
+          ...editingOrder.customer,
+          name: form.customerName,
+          email: form.email,
+          phone: form.phone,
+          avatar: form.customerName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+        },
+        product: form.product,
+        amount: Number(form.amount),
+        priority: form.priority,
+        dueDate: form.dueDate,
+        assignedTo: form.assignedTo,
+        notes: form.notes,
+        items: [{ name: form.product, qty: 1, price: Number(form.amount) }],
+      };
+      onEditOrder(updatedOrder);
+    } else {
+      const newOrder = {
+        id: `ORD-2024-00${Date.now().toString().slice(-3)}`,
+        customer: {
+          name: form.customerName,
+          email: form.email,
+          phone: form.phone,
+          avatar: form.customerName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+        },
+        product: form.product,
+        amount: Number(form.amount),
+        status: 'pending',
+        priority: form.priority,
+        date: new Date().toISOString().split('T')[0],
+        dueDate: form.dueDate,
+        assignedTo: form.assignedTo,
+        notes: form.notes,
+        items: [{ name: form.product, qty: 1, price: Number(form.amount) }],
+        timeline: [
+          { status: 'Order Placed', time: new Date().toLocaleString('en-IN'), done: true },
+          { status: 'Payment Verified', time: '', done: false },
+          { status: 'Processing', time: '', done: false },
+          { status: 'Shipped', time: '', done: false },
+          { status: 'Delivered', time: '', done: false },
+        ]
+      };
+      onAddOrder(newOrder);
+      setSubmitted(true);
+    }
   };
 
   if (submitted) return (
@@ -105,9 +145,8 @@ const set = (k, v) => {
       <div className="flex gap-3">
         <button onClick={onBack} className="btn-primary">View Orders</button>
         <button onClick={() => {
-          setSubmitted(false);
-          setStep(1);
-          setForm({ customerName: '', email: '', phone: '', product: '', amount: '', priority: 'medium', status: 'pending', assignedTo: '', dueDate: '', notes: '' });
+          setSubmitted(false); setStep(1);
+          setForm({ customerName: '', email: '', phone: '', product: '', amount: '', priority: 'medium', assignedTo: '', dueDate: '', notes: '' });
         }} className="btn-ghost">Create Another</button>
       </div>
     </div>
@@ -121,7 +160,9 @@ const set = (k, v) => {
         <ArrowLeft size={16} /> Back to Orders
       </button>
 
-      <h2 className="text-2xl font-bold mb-6" style={{ fontFamily: 'Syne' }}>Create New Order</h2>
+      <h2 className="text-2xl font-bold mb-6" style={{ fontFamily: 'Syne' }}>
+        {isEditMode ? `Edit Order — ${editingOrder.id}` : 'Create New Order'}
+      </h2>
 
       <div className="flex items-center mb-8">
         {steps.map((s, i) => (
@@ -249,7 +290,7 @@ const set = (k, v) => {
           </button>
         ) : (
           <button onClick={handleSubmit} className="btn-primary">
-            <Check size={15} /> Confirm Order
+            <Check size={15} /> {isEditMode ? 'Save Changes' : 'Confirm Order'}
           </button>
         )}
       </div>
