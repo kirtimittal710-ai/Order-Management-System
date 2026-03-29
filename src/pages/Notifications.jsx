@@ -67,7 +67,6 @@ export default function Notifications({ onSelectOrder }) {
             <Bell size={28} style={{ color: 'var(--accent-violet)' }} />
           </div>
           <p className="font-bold mb-1" style={{ fontFamily: 'Syne' }}>No notifications here</p>
-          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>You're all caught up!</p>
         </div>
       )}
 

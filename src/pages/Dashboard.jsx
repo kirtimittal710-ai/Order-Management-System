@@ -131,7 +131,7 @@ export default function Dashboard({ onNavigate, onSelectOrder }) {
       <div className="rounded-2xl p-5 relative overflow-hidden"
         style={{ background: 'linear-gradient(135deg, rgba(124,92,252,0.2) 0%, rgba(0,212,255,0.15) 100%)', border: '1px solid rgba(124,92,252,0.2)' }}>
         <div className="relative z-10">
-          <p className="text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>Good morning</p>
+          <p className="text-sm mb-1" style={{ color: 'var(--text-secondary)' }}></p>
           <h2 className="text-2xl font-bold" style={{ fontFamily: 'Syne' }}>Welcome back, Admin</h2>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
             You have <span style={{ color: 'var(--accent-violet)', fontWeight: '600' }}>2 pending</span> orders that need attention today.
@@ -161,7 +161,7 @@ export default function Dashboard({ onNavigate, onSelectOrder }) {
 
       <div className="glass-card p-5 flex items-center justify-between">
         <div>
-          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Total Revenue (March)</p>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Total Revenue</p>
           <p className="text-3xl font-bold mt-1" style={{ fontFamily: 'Syne' }}>
             ₹{stats.revenue.toLocaleString('en-IN')}
           </p>
